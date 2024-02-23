@@ -15,5 +15,6 @@ module MyAccount::Message_test{
         let account = get_signer();
         let addr = signer::address_of(&account);
         aptos_framework::account::create_account_for_test(addr);
+        Message::create_message();
     }
 }
