@@ -1,5 +1,7 @@
 #[test_only]
 module MyAccount::Message_test{
+    use std::debug::print;
+    use std::string::{String,utf8};
     use std::signer;
     use std::unit_test;
     use std::vector;
@@ -13,8 +15,13 @@ module MyAccount::Message_test{
     #[test]
     fun test(){
         let account = get_signer();
-        let addr = signer::address_of(&account);
-        aptos_framework::account::create_account_for_test(addr);
-        Message::create_message();
+        Message::create_message(&account,utf8(b"hello world"));
+        let mssg1= Message::get_message(&account);
+        print(&mssg1);
+        assert!(mssg1 == utf8(b"hello world"),0);
+        Message::create_message(&account, utf8(b"hello"));
+        let mssg2= Message::get_message(&account);
+        print(&mssg2);
+        assert!(mssg2 == utf8(b"hello"),0);
     }
 }

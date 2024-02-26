@@ -1,11 +1,12 @@
 module MyAccount::Message{
     use std::string::{String,utf8};
+    use std::signer;
 
     struct MessageStore has key{
         message: String
     }
 
-    fun create_message(account:&signer, message:String){
+    public fun create_message(account:&signer, message:String) acquires MessageStore{
         let addr = signer::address_of(account);
         if(!exists<MessageStore>(addr)){
             move_to<MessageStore>(account, MessageStore{message})
@@ -15,7 +16,7 @@ module MyAccount::Message{
         }
     }
 
-    fun get_message(account: &signer): String{
+    public fun get_message(account: &signer): String acquires MessageStore{
         borrow_global<MessageStore>(signer::address_of(account)).message
     }
 }
