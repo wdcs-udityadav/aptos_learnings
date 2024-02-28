@@ -14,10 +14,10 @@ module MyAccount::BasicToken{
     }
 
     struct Coins has store{
-        amount: u8
+        amount: u64
     }
 
-    public fun mint(coin_amount:u8): Coins {
+    public fun mint(coin_amount:u64): Coins {
         Coins{
             amount: coin_amount
         }
@@ -31,7 +31,8 @@ module MyAccount::BasicToken{
         exists<Balance>(addr)
     }
 
-    public fun get_balance(addr:address):u8 acquires Balance{
+    public fun get_balance(addr:address):u64 acquires Balance{
+        assert!(if_balance_exists(addr), E_BALANCE_DOESNT_EXIST);
         borrow_global<Balance>(addr).coin_balance.amount
     }
 
@@ -53,7 +54,7 @@ module MyAccount::BasicToken{
         balance.coin_balance.amount = balance.coin_balance.amount + amount;
     }
 
-    public fun withdraw(account:&signer, amount:u8):Coins acquires Balance {
+    public fun withdraw(account:&signer, amount:u64):Coins acquires Balance {
         let addr = signer::address_of(account);
         assert!(if_balance_exists(addr), E_BALANCE_DOESNT_EXIST);
         assert!(get_balance(addr)>= amount, E_INSUFFICIENT_BALANCE);
@@ -63,7 +64,7 @@ module MyAccount::BasicToken{
         Coins{amount}
     }
 
-    public fun transfer(account:&signer, to:address, amount:u8) acquires Balance {
+    public fun transfer(account:&signer, to:address, amount:u64) acquires Balance {
         let addr = signer::address_of(account);
         assert!(if_balance_exists(addr), E_BALANCE_DOESNT_EXIST);
         assert!(if_balance_exists(to), E_BALANCE_DOESNT_EXIST);
