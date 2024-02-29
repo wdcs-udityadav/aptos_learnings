@@ -36,6 +36,17 @@ module MyAccount::Lottery{
         vector::length(&borrow_global<Lottery>(stored_at).bets_list)
     }
 
+    #[view]
+    public fun get_total_amount(stored_at:address):u64 acquires Lottery {
+        borrow_global<Lottery>(stored_at).total_amount
+    }
+
+    #[view]
+    public fun get_bet(stored_at: address,player:address):u64 acquires Lottery {
+        let lottery = borrow_global<Lottery>(stored_at);
+        *simple_map::borrow(&lottery.bets_map, &player)
+    }
+
     fun random(total_players:u64):u64{
         timestamp::now_microseconds() % total_players 
     }
@@ -80,11 +91,13 @@ module MyAccount::Lottery{
         let random_value = random(total_players);
         let winner = vector::borrow(&lottery.bets_list,random_value);
         lottery.winner = *winner;
+        aptos_account::transfer(account,*winner,lottery.total_amount);
         *winner
     }
 
-    #[test(account=@MyAccount)]
-    fun test_lottery(account: signer) {
+    #[test(account=@MyAccount, framework=@0x1)]
+    fun test_lottery(account: signer, framework:signer) {
+        timestamp::set_time_has_started_for_testing(&framework);
         initialize(&account);
     }
 }
