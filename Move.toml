@@ -4,6 +4,8 @@ version = "1.0.0"
 authors = []
 
 [addresses]
+LotteryAt = "_"
+Admin = "_"
 MyAccount = "_"
 
 [dev-addresses]

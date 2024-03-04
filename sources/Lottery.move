@@ -1,4 +1,4 @@
-module MyAccount::Lottery{
+module LotteryAt::Lottery{
     use std::account;
     use std::aptos_account;
     use std::aptos_coin::{AptosCoin, Self};
@@ -10,7 +10,7 @@ module MyAccount::Lottery{
     use std::vector;
 
     // errors
-    const E_NOT_OWNER:u64 = 0;
+    const E_NOT_ADMIN:u64 = 0;
     const E_ALREADY_INITIALIZED:u64 = 1;
     const E_UNINITIALIZED:u64 = 2;
     const E_INSUFFICIENT_BALANCE:u64 = 3;
@@ -22,16 +22,11 @@ module MyAccount::Lottery{
         bets_map: SimpleMap<address, u64>,
         bets_list: vector<address>,
         winner: address,
-        total_amount: u64,
-        admin: address
-    }
-
-    fun assert_is_admin(addr: address) acquires Lottery{
-        assert!(addr == borrow_global<Lottery>(@MyAccount).admin, E_NOT_OWNER);
+        total_amount: u64
     }
 
     fun is_initialized():bool {
-        exists<Lottery>(@MyAccount)
+        exists<Lottery>(@LotteryAt)
     }
 
     #[view]
@@ -68,8 +63,7 @@ module MyAccount::Lottery{
             bets_map: simple_map::new(),
             bets_list: vector::empty(),
             winner: @0x0,
-            total_amount: 0,
-            admin: @admin
+            total_amount: 0
         });
     }
 
@@ -79,19 +73,19 @@ module MyAccount::Lottery{
         let from_addr = signer::address_of(account);
         assert!(coin::balance<AptosCoin>(from_addr) >= amount, E_INSUFFICIENT_BALANCE);
 
-        aptos_account::transfer(account, @MyAccount, amount);
+        aptos_account::transfer(account, @LotteryAt, amount);
 
-        let lottery = borrow_global_mut<Lottery>(@MyAccount);
+        let lottery = borrow_global_mut<Lottery>(@LotteryAt);
         simple_map::add(&mut lottery.bets_map, from_addr, amount);
         vector::push_back(&mut lottery.bets_list, from_addr);
         lottery.total_amount = lottery.total_amount + amount; 
     }
 
     public entry fun declare_winner(account:&signer) acquires Lottery{
-        assert_is_admin(signer::address_of(account));
+        assert!(signer::address_of(account) == @Admin, E_NOT_ADMIN);
         assert!(is_initialized(), E_UNINITIALIZED);
         
-        let lottery = borrow_global_mut<Lottery>(@MyAccount);
+        let lottery = borrow_global_mut<Lottery>(@LotteryAt);
         let total_players = vector::length(&lottery.bets_list);
         assert!(total_players >= 3 , E_INSUFFICIENT_PLAYERS);
         assert!(lottery.winner == @0x0, E_LOTTERY_CONCLUDED);
@@ -103,9 +97,10 @@ module MyAccount::Lottery{
         aptos_account::transfer(account,*winner,lottery.total_amount);
     }
 
-    #[test(stored_at=@MyAccount, admin=@admin, aptos_framework=@0x1)]
+    #[test(stored_at=@LotteryAt, admin=@Admin, aptos_framework=@0x1)]
     fun test_lottery(stored_at:signer, admin:signer, aptos_framework:signer) acquires Lottery {
-        let stored_at = signer::address_of(&stored_at);
+
+        let stored_at_addr = signer::address_of(&stored_at);
 
         timestamp::set_time_has_started_for_testing(&aptos_framework);
         let (burn_cap, mint_cap) = aptos_coin::initialize_for_test(&aptos_framework);
@@ -132,13 +127,13 @@ module MyAccount::Lottery{
         place_bet(&user3, 200);
         place_bet(&user4, 300);
 
-        assert!(get_bet(stored_at, signer::address_of(&user4)) == 300, 0);
-        assert!(get_total_players(stored_at) == 4 , 0);
-        assert!(get_total_amount(stored_at) == 840, 0); 
-        assert!(coin::balance<AptosCoin>(stored_at) == 840, 0);
+        assert!(get_bet(stored_at_addr, signer::address_of(&user4)) == 300, 0);
+        assert!(get_total_players(stored_at_addr) == 4 , 0);
+        assert!(get_total_amount(stored_at_addr) == 840, 0); 
+        assert!(coin::balance<AptosCoin>(stored_at_addr) == 840, 0);
 
         declare_winner(&admin);
-        print(&get_winner(stored_at));
+        print(&get_winner(stored_at_addr));
 
         coin::destroy_burn_cap<AptosCoin>(burn_cap);
         coin::destroy_mint_cap<AptosCoin>(mint_cap);
