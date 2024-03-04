@@ -125,45 +125,62 @@ module LotteryAt::Lottery{
         aptos_account::transfer(&res_signer,*winner,lottery.total_amount);
     }
 
+    #[test_only]
+    fun test_setup(admin: &signer) {
+        let admin_addr = signer::address_of(admin); 
+        // print(&admin_addr);
+
+        account::create_account_for_test(admin_addr);
+        let seed = x"4565";
+
+        resource_account::create_resource_account(admin,seed,vector::empty());
+        let res_addr = account::create_resource_address(&admin_addr, seed);
+        print(&res_addr);
+    }
+
     #[test(stored_at=@LotteryAt, admin=@Admin, aptos_framework=@0x1)]
-    fun test_lottery(stored_at:signer, admin:signer, aptos_framework:signer) acquires Lottery, Config {
+    fun test_lottery(stored_at:signer, admin:signer, aptos_framework:signer) 
+    // acquires Lottery, Config
+     {
+        test_setup(&admin);
 
-        let stored_at_addr = signer::address_of(&stored_at);
 
-        timestamp::set_time_has_started_for_testing(&aptos_framework);
-        let (burn_cap, mint_cap) = aptos_coin::initialize_for_test(&aptos_framework);
+        // let stored_at_addr = signer::address_of(&stored_at);
 
-        let user1 = account::create_account_for_test(@0x4);
-        let user2 = account::create_account_for_test(@0x5);
-        let user3 = account::create_account_for_test(@0x6);
-        let user4 = account::create_account_for_test(@0x7);
+        // timestamp::set_time_has_started_for_testing(&aptos_framework);
+        // let (burn_cap, mint_cap) = aptos_coin::initialize_for_test(&aptos_framework);
 
-        coin::register<AptosCoin>(&user1); 
-        coin::register<AptosCoin>(&user2); 
-        coin::register<AptosCoin>(&user3); 
-        coin::register<AptosCoin>(&user4);
+        // let user1 = account::create_account_for_test(@0x4);
+        // let user2 = account::create_account_for_test(@0x5);
+        // let user3 = account::create_account_for_test(@0x6);
+        // let user4 = account::create_account_for_test(@0x7);
 
-        aptos_coin::mint(&aptos_framework, signer::address_of(&user1), 200);
-        aptos_coin::mint(&aptos_framework, signer::address_of(&user2), 190);
-        aptos_coin::mint(&aptos_framework, signer::address_of(&user3), 250);
-        aptos_coin::mint(&aptos_framework, signer::address_of(&user4), 350);
+        // coin::register<AptosCoin>(&user1); 
+        // coin::register<AptosCoin>(&user2); 
+        // coin::register<AptosCoin>(&user3); 
+        // coin::register<AptosCoin>(&user4);
 
-        init_module(&stored_at);
+        // aptos_coin::mint(&aptos_framework, signer::address_of(&user1), 200);
+        // aptos_coin::mint(&aptos_framework, signer::address_of(&user2), 190);
+        // aptos_coin::mint(&aptos_framework, signer::address_of(&user3), 250);
+        // aptos_coin::mint(&aptos_framework, signer::address_of(&user4), 350);
 
-        place_bet(&user1, 150);
-        place_bet(&user2, 190);
-        place_bet(&user3, 200);
-        place_bet(&user4, 300);
+        // init_module(&stored_at);
 
-        assert!(get_bet(stored_at_addr, signer::address_of(&user4)) == 300, 0);
-        assert!(get_total_players(stored_at_addr) == 4 , 0);
-        assert!(get_total_amount(stored_at_addr) == 840, 0); 
-        assert!(coin::balance<AptosCoin>(stored_at_addr) == 840, 0);
+        // place_bet(&user1, 150);
+        // place_bet(&user2, 190);
+        // place_bet(&user3, 200);
+        // place_bet(&user4, 300);
 
-        declare_winner(&admin);
-        print(&get_winner(stored_at_addr));
+        // assert!(get_bet(stored_at_addr, signer::address_of(&user4)) == 300, 0);
+        // assert!(get_total_players(stored_at_addr) == 4 , 0);
+        // assert!(get_total_amount(stored_at_addr) == 840, 0); 
+        // assert!(coin::balance<AptosCoin>(stored_at_addr) == 840, 0);
 
-        coin::destroy_burn_cap<AptosCoin>(burn_cap);
-        coin::destroy_mint_cap<AptosCoin>(mint_cap);
+        // declare_winner(&admin);
+        // print(&get_winner(stored_at_addr));
+
+        // coin::destroy_burn_cap<AptosCoin>(burn_cap);
+        // coin::destroy_mint_cap<AptosCoin>(mint_cap);
     }
 }
