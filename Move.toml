@@ -4,9 +4,11 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-LotteryAt = "_"
-Admin = "_"
 MyAccount = "_"
+Admin = "_"
+LotteryAt = "0x140be45bdf12009d4e08a886f89c6dec37d03f94604095d8bc7f885d078dfb70"
+Origin = "_"
+
 
 [dev-addresses]
 
