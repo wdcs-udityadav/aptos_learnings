@@ -120,6 +120,6 @@ module MyAccount::EnglishAuction{
 
         //get winner
         get_winner(addr);
-        assert(borrow_global<Auction>(addr).winner == signer::address_of(&acc4), 9);
+        assert!(borrow_global<Auction>(addr).winner == signer::address_of(&acc4), 9);
     }
 }
