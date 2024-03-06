@@ -1,4 +1,4 @@
-module StoredAt::ObjectExample{
+module MyAccount::ObjectExample{
     use std::account;
     use std::debug::print;
     use std::object;
@@ -87,7 +87,7 @@ module StoredAt::ObjectExample{
         object::delete(delete_ref);
     }
 
-    #[test(account=@StoredAt)]
+    #[test(account=@MyAccount)]
     fun test_object(account:signer)acquires ObjectController{
         let user1 = account::create_account_for_test(@0x45);
         let user2 = account::create_account_for_test(@0x46);

@@ -8,6 +8,7 @@ MyAccount = "_"
 Admin = "_"
 LotteryAt = "0x140be45bdf12009d4e08a886f89c6dec37d03f94604095d8bc7f885d078dfb70"
 Origin = "_"
+Multisig = "0xd58616cffdf00c6bdc5dcbff3486fd9fac451cded2e644bc8b62b78f5e5a9acf"
 
 [dev-addresses]
 
@@ -15,5 +16,10 @@ Origin = "_"
 git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
 subdir = "aptos-move/framework/aptos-framework"
+
+[dependencies.AptosToken]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-token"
 
 [dev-dependencies]
